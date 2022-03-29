@@ -29,8 +29,11 @@ array fname = [\
     '../data/hst_12182_a7_wfc3_ir_f127m_drz.csv' ]
 array object = [\
     'Arches', 'Quintuplet', 'SGRA', \
-    'MW-NSC-V35', 'MW-NSC-V43', 'MW-NSC-V38-COPY-1', \
+    'MW-NSC-V35', 'MW-NSC-V43', 'MW-NSC-V38', \
     'MW-NSC-V37', 'MW-NSC-V41' ]
+
+lam127 = 1.274029
+lam139 = 1.383762
 
 do for [n=1:8] {
     fn=fname[n]
@@ -65,8 +68,19 @@ do for [n=1:8] {
     plot fn u 1:3 lc 2 w histeps \
         t sprintf('%s F139M', on)
     unset multiplot
+    hc = 6.62607004e-34 * 3e8 * 1e6
+    dl = lam139-lam127
+    df = log(p139M)-log(p127M)
+    dS = (log(p127M)*lam139-log(p139M)*lam127)/dl
+    a  = df/dl
+    ph(l) = exp(dS+a*l)/hc
+    photon(l) = \
+        (exp(a*l)*l/a - exp(a*l)/a**2) * exp(dS) / hc
+    w = 0.424**2*pi*0.2**2*0.8*0.95*0.97**5
     print p127M, p139M
+    print photon(1.6)-photon(1.1), photon(1.6)-photon(0.9)
+    print sprintf("%.2f & %.2f \\\\", \
+        (photon(1.6)-photon(1.1))*w, (photon(1.6)-photon(0.9))*w)
 }
 
 unset output
-print F139M_max_y/F139M_max_x
